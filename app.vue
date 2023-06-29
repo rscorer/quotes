@@ -24,7 +24,10 @@ export default {
         if (quotes.value.length === 0) {
           currentQuote.value = 'Loading quotes...';
         } else {
-          currentQuote.value = quotes.value[Math.floor(Math.random() * quotes.value.length)];
+          let prevQuote = currentQuote.value
+          do {
+            currentQuote.value = quotes.value[Math.floor(Math.random() * quotes.value.length)];
+          } while (currentQuote.value === prevQuote)
         }
     };
 
