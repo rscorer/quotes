@@ -1,60 +1,48 @@
 <template>
-  <div>
-    <h1 class="headline">Famous Quotes of Steve Jobs</h1>
-    <div class="quote">{{ currentQuote }}</div>
-    <button @click="fetchRandomQuote" class="button">Get Another Quote</button>
+  <div class="text-center py-10">
+    <h1 class="text-3xl font-bold mb-6">Famous Quotes of Steve Jobs</h1>
+    <div class="text-xl mb-8">{{ currentQuote }}</div>
+    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" @click="getRandomQuote">Next Quote</button>
   </div>
 </template>
 
 <script>
-export default {
-  data() {
-    return {
-      quotes: [],
-      currentQuote: ''
-    };
-  },
-  mounted() {
-    this.fetchQuotes();
-  },
-  methods: {
-    fetchQuotes() {
-      fetch('/quotes.txt')
-          .then(response => response.text())
-          .then(data => {
-            this.quotes = data.split('\n').filter(quote => quote !== '');
-            this.fetchRandomQuote();
-          });
-    },
-    fetchRandomQuote() {
-      const randomIndex = Math.floor(Math.random() * this.quotes.length);
-      const newQuote = this.quotes[randomIndex];
+import { ref, onMounted } from 'vue';
 
-      if (newQuote === this.currentQuote) {
-        // If the new quote is the same as the current quote, recursively call the method again
-        this.fetchRandomQuote();
-      } else {
-        this.currentQuote = newQuote;
-      }
-    }
+export default {
+  setup() {
+    const quotes = ref([]);
+    let currentQuote = ref("Loading quotes...")
+
+    const fetchQuotes = async () => {
+      const response = await fetch('/quotes.txt');
+      const text = await response.text();
+      quotes.value = text.split('\n').filter(line => line.trim() !== '');
+    };
+
+    const getRandomQuote = () => {
+        if (quotes.value.length === 0) {
+          currentQuote.value = 'Loading quotes...';
+        } else {
+          currentQuote.value = quotes.value[Math.floor(Math.random() * quotes.value.length)];
+        }
+    };
+
+    onMounted(async () => {
+      await fetchQuotes();
+      getRandomQuote()
+    });
+
+    return {
+      currentQuote,
+      getRandomQuote
+    };
   }
 };
 </script>
 
 <style>
-.headline {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.quote {
-  text-align: center;
-  font-size: 24px;
-  margin-bottom: 20px;
-}
-
-.button {
-  display: block;
-  margin: 0 auto;
+button {
+  cursor: pointer;
 }
 </style>
